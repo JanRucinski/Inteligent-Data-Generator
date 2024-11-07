@@ -91,18 +91,7 @@ def generate_sample_data(schema):
                     else:
                         row[column_name] = None  # Default to None for unsupported types
                     if column_type == "string" and not row[column_name]:
-                        if "name" in column_name.lower():
-                            row[column_name] = fake.name()
-                        elif "city" in column_name.lower():
-                            row[column_name] = fake.city()
-                        elif "country" in column_name.lower():
-                            row[column_name] = fake.country()
-                        elif "province" in column_name.lower():
-                            row[column_name] = fake.state()
-                        elif "gender" in column_name.lower():
-                            row[column_name] = random.choice(["Male", "Female", "Non-Binary"])
-                        else:
-                            row[column_name] = fake.word()
+                        row[column_name] = fake.word()
                     elif column_type == "integer":
                         row[column_name] = random.randint(1, 100)
                     elif column_type == "date":
