@@ -1,6 +1,7 @@
 import json
 from faker import Faker
 import random
+import time
 
 fake = Faker()
 settings = {}
@@ -19,6 +20,7 @@ def read_json(file_path):
 
 def prescan_for_settings(schema): #might handle foreign keys?
     """Extracts settings from the schema and returns them."""
+    global settings
     settings = schema.get("settings", {})
 
     localization = settings.get("localization")
@@ -38,7 +40,7 @@ def generate_sample_data(schema):
         table_name = table["name"]
         columns = table["columns"]
         sample_rows = []
-        
+
         for _ in range(settings.get("rows_per_table", 10)):
             row = {}
             gender_value = None  # Track gender if specified 
@@ -145,6 +147,7 @@ def save_sql_file(sql_statements, output_file="sample_data.sql"):
 
 # Example usage
 if __name__ == "__main__":
+    time_start = time.time()
     schema_file = "input.json"  # Replace with your JSON schema file
     schema = read_json(schema_file)
     
@@ -153,5 +156,6 @@ if __name__ == "__main__":
         sample_data = generate_sample_data(schema)
         sql_statements = generate_sql_insert_statements(sample_data)
         save_sql_file(sql_statements)
+        print("Script closed in", time.time() - time_start, " seconds")
     else:
         print("schema issues")
