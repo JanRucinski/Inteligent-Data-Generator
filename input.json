@@ -1,79 +1,219 @@
 {
-    "tables": [
-      {
-        "name": "Customers",
-        "columns": [
-          { "name": "CustomerID", "type": "integer", "primary_key": true },
-          { "name": "FirstName", "type": "string", "generation": "firstName" },
-          { "name": "LastName", "type": "string", "generation": "lastName" },
-          { "name": "Gender", "type": "string", "generation": "gender" },
-          { "name": "DateOfBirth", "type": "date", "generation": "date" },
-          { "name": "SSN", "type": "string", "generation": "ssn", "constraints": { "unique": true } }
-        ]
-      },
-      {
-        "name": "Orders",
-        "columns": [
-          { "name": "OrderID", "type": "integer", "primary_key": true },
-          { "name": "CustomerID", "type": "integer", "foreign_key": "Customers.CustomerID" },
-          { "name": "OrderDate", "type": "date", "generation": "date" },
-          { "name": "TotalAmount", "type": "decimal", "generation": "amount" }
-        ]
+  "settings": {
+    "localization": "pl_PL",
+    "rows_per_table": 15
+  },
+  "tables": [
+    {
+      "name": "Customers",
+      "columns": [
+        {
+          "name": "CustomerID",
+          "type": "integer",
+          "primary_key": true
+        },
+        {
+          "name": "FirstName",
+          "type": "string",
+          "generation": "firstName"
+        },
+        {
+          "name": "LastName",
+          "type": "string",
+          "generation": "lastName"
+        },
+        {
+          "name": "Gender",
+          "type": "string",
+          "generation": "gender"
+        },
+        {
+          "name": "DateOfBirth",
+          "type": "date",
+          "generation": "date"
+        },
+        {
+          "name": "SSN",
+          "type": "string",
+          "generation": "ssn",
+          "constraints": {
+            "unique": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "columns": [
+        {
+          "name": "OrderID",
+          "type": "integer",
+          "primary_key": true
+        },
+        {
+          "name": "CustomerID",
+          "type": "integer",
+          "foreign_key": "Customers.CustomerID"
+        },
+        {
+          "name": "OrderDate",
+          "type": "date",
+          "generation": "date"
+        },
+        {
+          "name": "TotalAmount",
+          "type": "decimal",
+          "generation": "amount"
+        }
+      ]
     },
     {
       "name": "Products",
       "columns": [
-        { "name": "ProductID", "type": "integer", "primary_key": true },
-        { "name": "ProductName", "type": "string" },
-        { "name": "ProductDescription", "type": "text" },
-        { "name": "Price", "type": "decimal"}
+        {
+          "name": "ProductID",
+          "type": "integer",
+          "primary_key": true
+        },
+        {
+          "name": "ProductName",
+          "type": "string"
+        },
+        {
+          "name": "ProductDescription",
+          "type": "text"
+        },
+        {
+          "name": "Price",
+          "type": "decimal"
+        }
       ]
     },
     {
       "name": "OrderItems",
       "columns": [
-        { "name": "OrderItemID", "type": "integer", "primary_key": true },
-        { "name": "OrderID", "type": "integer", "foreign_key": "Orders.OrderID" },
-        { "name": "ProductID", "type": "integer", "foreign_key": "Products.ProductID" },
-        { "name": "Quantity", "type": "integer" },
-        { "name": "Price", "type": "decimal"}
-      ]
-    },
-    {
-      "name": "Addresses",
-      "columns": [
-        { "name": "AddressID", "type": "integer", "primary_key": true },
-        { "name": "CustomerID", "type": "integer", "foreign_key": "Customers.CustomerID" },
-        { "name": "Street", "type": "string" },
-        { "name": "CityID", "type": "integer", "foreign_key": "Cities.CityID" },
-        { "name": "PostalCode", "type": "string" }
-      ]
-    },
-    {
-      "name": "Cities",
-      "columns": [
-        { "name": "CityID", "type": "integer", "primary_key": true },
-        { "name": "CityName", "type": "string" },
-        { "name": "ProvinceID", "type": "integer", "foreign_key": "Provinces.ProvinceID" },
-        { "name": "PostalCode", "type": "string" }
+        {
+          "name": "OrderItemID",
+          "type": "integer",
+          "primary_key": true
+        },
+        {
+          "name": "OrderID",
+          "type": "integer",
+          "foreign_key": "Orders.OrderID"
+        },
+        {
+          "name": "ProductID",
+          "type": "integer",
+          "foreign_key": "Products.ProductID"
+        },
+        {
+          "name": "Quantity",
+          "type": "integer"
+        },
+        {
+          "name": "Price",
+          "type": "decimal"
+        }
       ]
     },
     {
       "name": "Provinces",
       "columns": [
-        { "name": "ProvinceID", "type": "integer", "primary_key": true },
-        { "name": "ProvinceName", "type": "string" },
-        { "name": "Country", "type": "string" }
+        {
+          "name": "ProvinceID",
+          "type": "integer",
+          "primary_key": true
+        },
+        {
+          "name": "ProvinceName",
+          "type": "string"
+        },
+        {
+          "name": "Country",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "Cities",
+      "columns": [
+        {
+          "name": "CityID",
+          "type": "integer",
+          "primary_key": true
+        },
+        {
+          "name": "CityName",
+          "type": "string",
+          "generation": "city"
+        },
+        {
+          "name": "ProvinceID",
+          "type": "integer",
+          "foreign_key": "Provinces.ProvinceID"
+        },
+        {
+          "name": "PostalCode",
+          "type": "string",
+          "generation": "postalCode"
+        }
+      ]
+    },
+    {
+      "name": "Addresses",
+      "columns": [
+        {
+          "name": "AddressID",
+          "type": "integer",
+          "primary_key": true
+        },
+        {
+          "name": "CustomerID",
+          "type": "integer",
+          "foreign_key": "Customers.CustomerID"
+        },
+        {
+          "name": "Street",
+          "type": "string"
+        },
+        {
+          "name": "CityID",
+          "type": "integer",
+          "foreign_key": "Cities.CityID"
+        },
+        {
+          "name": "PostalCode",
+          "type": "string",
+          "generation": "postalCode"
+        }
       ]
     },
     {
       "name": "WeatherData",
       "columns": [
-        { "name": "WeatherDataID", "type": "integer", "primary_key": true },
-        { "name": "CityID", "type": "integer", "foreign_key": "Cities.CityID" },
-        { "name": "Date", "type": "date" },
-        { "name": "Temperature", "type": "float" },
-        { "name": "Rainfall", "type": "float" }
+        {
+          "name": "WeatherDataID",
+          "type": "integer",
+          "primary_key": true
+        },
+        {
+          "name": "CityID",
+          "type": "integer",
+          "foreign_key": "Cities.CityID"
+        },
+        {
+          "name": "Date",
+          "type": "date"
+        },
+        {
+          "name": "Temperature",
+          "type": "float"
+        },
+        {
+          "name": "Rainfall",
+          "type": "float"
+        }
       ]
     }
   ]
