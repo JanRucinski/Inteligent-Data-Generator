@@ -4,6 +4,11 @@
 python main.py
 ```
 there is only a need for an "input.json" file with a structure as provided (subject to some changes)
+## Supported settings:
+- rows_per_table
+- localization
+- failsafe_limit
+
 ## Supported generation types as of now:
 - firstName
 - lastName

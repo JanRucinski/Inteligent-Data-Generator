@@ -1,7 +1,7 @@
 {
   "settings": {
-    "localization": "pl_PL",
-    "rows_per_table": 15
+    "localization": "en",
+    "rows_per_table": 2
   },
   "tables": [
     {
@@ -77,7 +77,8 @@
         },
         {
           "name": "ProductName",
-          "type": "string"
+          "type": "string",
+          "regex": "^[a-zA-Z0-9]+$"
         },
         {
           "name": "ProductDescription",
@@ -127,11 +128,13 @@
         },
         {
           "name": "ProvinceName",
-          "type": "string"
+          "type": "string",
+          "generation": "state"
         },
         {
           "name": "Country",
-          "type": "string"
+          "type": "string",
+          "generation": "country"
         }
       ]
     },
@@ -156,7 +159,7 @@
         {
           "name": "PostalCode",
           "type": "string",
-          "generation": "postalCode"
+          "generation": "postcode"
         }
       ]
     },
@@ -185,7 +188,7 @@
         {
           "name": "PostalCode",
           "type": "string",
-          "generation": "postalCode"
+          "generation": "postcode"
         }
       ]
     },

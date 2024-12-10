@@ -1,13 +1,49 @@
 import json
+import re
 from faker import Faker
 import random
 import time
+import json
+import re
+from faker import Faker
+import random
+import time
+import argparse
 
 fake = Faker()
 settings = {}
 
 # Constants
 DEFAULT_ROWS_PER_TABLE = 10
+DEFAULT_FAILSAFE_LIMIT = 100
+PRIORITIZED_COLUMNS = ["ID", "gender", "state"]
+
+def read_json(file_path):
+    """Reads a JSON file and returns its contents."""
+    try:
+        with open(file_path, 'r') as json_file:
+            data = json.load(json_file)
+            return data
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found.")
+    except json.JSONDecodeError:
+        print(f"Error: The file '{file_path}' is not a valid JSON format.")
+    return None
+
+def prescan_for_settings(json_file): #might handle foreign keys?
+    """Extracts settings from the input and returns them."""
+    global settings
+    settings = json_file.get("settings", {})
+
+    localization = settings.get("localization")
+    if localization:
+        global fake
+fake = Faker()
+settings = {}
+
+# Constants
+DEFAULT_ROWS_PER_TABLE = 10
+DEFAULT_FAILSAFE_LIMIT = 100
 PRIORITIZED_COLUMNS = ["ID", "gender", "state"]
 
 def read_json(file_path):
@@ -89,6 +125,7 @@ def generate_sample_data(json_file):
     """Generates sample data for each table in the schema."""
     data = {}
     primary_keys = {}
+    errors_in_generation = []
 
     sorted_tables = sort_tables_by_dependencies(json_file)
 
@@ -105,23 +142,34 @@ def generate_sample_data(json_file):
         "amount": lambda: round(random.uniform(1, 1000), 2)
     }
 
-    # TODO: settings
     for table in sorted_tables:
         table_name = table["name"]
         columns = table["columns"]
         sample_rows = []
 
-        for _ in range(settings.get("rows_per_table", DEFAULT_ROWS_PER_TABLE)):
-            row = {}
-            gender_value = None
-            sorted_columns = sort_columns_by_priority(columns)
+        generate_sample_data_table(primary_keys, errors_in_generation, generation_methods, table_name, columns, sample_rows)
 
-            for column in sorted_columns:
-                column_name = column["name"]
-                column_type = column["type"]
-                generation = column.get("generation")
+        data[table_name] = sample_rows
 
-                # Generate data based on the "generation" type, or the column type
+    return data, errors_in_generation
+
+def generate_sample_data_table(primary_keys, errors_in_generation, generation_methods, table_name, columns, sample_rows):
+    for _ in range(settings.get("rows_per_table", DEFAULT_ROWS_PER_TABLE)):
+        row = {}
+        gender_value = None
+        sorted_columns = sort_columns_by_priority(columns)
+
+        for column in sorted_columns:
+            column_name = column["name"]
+            column_type = column["type"]
+            generation = column.get("generation")
+
+            failsafe = 0
+
+            while failsafe < settings.get("failsafe_limit", DEFAULT_FAILSAFE_LIMIT):
+                passed = True
+
+                    # Generate data based on the "generation" type, or the column type
                 if "foreign_key" in column:
                     referenced_table, referenced_column = column["foreign_key"].split(".")
                     if referenced_table in primary_keys and primary_keys[referenced_table]:
@@ -141,7 +189,7 @@ def generate_sample_data(json_file):
                             else:
                                 row[column_name] = fake.first_name()
                     else:
-                        # Default generation types
+                            # Default generation types
                         if column_type == "integer":
                             row[column_name] = random.randint(1, 100)
                         elif column_type == "string":
@@ -159,11 +207,11 @@ def generate_sample_data(json_file):
                         else:
                             row[column_name] = None
 
-                # Handle unique constraints for SSN, PostalCode, etc.
+                    # Handle unique constraints for SSN, PostalCode, etc.
                 if "constraints" in column and "unique" in column["constraints"]:
                     row[column_name] = fake.unique.ssn() if column_name == "SSN" else fake.unique.zipcode()
 
-                # Primary key handling
+                    # Primary key handling
                 if "primary_key" in column:
                     if table_name not in primary_keys:
                         primary_keys[table_name] = []
@@ -172,10 +220,20 @@ def generate_sample_data(json_file):
                 if row[column_name] is None:
                     print(column, generation, " was wrong")
 
-            sample_rows.append(row)
+                    # Regex validation
+                if "regex" in column:
+                    pattern = re.compile(column["regex"])
+                    if not pattern.match(row[column_name]):
+                        passed = False
 
-        data[table_name] = sample_rows
-    return data
+                if passed:
+                    break
+                else:
+                    failsafe += 1
+                    if failsafe == 100:
+                        errors_in_generation.append(f"Failed to generate data for the column '{column_name}' in the table '{table_name}' that fits criteria, row: {row} '\n'")
+                
+        sample_rows.append(row)
 
 def generate_sql_insert_statements(data):
     """Generates SQL insert statements for the sample data."""
@@ -198,9 +256,13 @@ def save_sql_file(sql_statements, output_file="sample_data.sql"):
 
 # Example usage
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Generate sample data from a JSON schema.")
+    parser.add_argument("schema_file", nargs="?", default="input.json", help="Path to the JSON schema file")
+    parser.add_argument("--output_file", "-o", default="sample_data.sql", help="Path to the output SQL file")
+    args = parser.parse_args()
+
     time_start = time.time()
-    schema_file = "input.json"  # Replace with your JSON schema file
-    schema = read_json(schema_file)
+    schema = read_json(args.schema_file)
     
     if schema:
         prescan_for_settings(schema)
@@ -211,10 +273,12 @@ if __name__ == "__main__":
                 print(error)
             print("No output generated")
         else:
-            sample_data = generate_sample_data(schema)
+            sample_data, errors = generate_sample_data(schema)
             sql_statements = generate_sql_insert_statements(sample_data)
-            save_sql_file(sql_statements)
+            save_sql_file(sql_statements, args.output_file)
 
         print("Script closed in", time.time() - time_start, " seconds")
+        if (errors):
+            print("generation issues: ", errors)
     else:
         print("schema issues")
