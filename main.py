@@ -257,7 +257,7 @@ def save_sql_file(sql_statements, output_file="sample_data.sql"):
 # Example usage
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate sample data from a JSON schema.")
-    parser.add_argument("schema_file", nargs="?", default="input.json", help="Path to the JSON schema file")
+    parser.add_argument("--schema_file", "-i" , default="input.json", help="Path to the JSON schema file")
     parser.add_argument("--output_file", "-o", default="sample_data.sql", help="Path to the output SQL file")
     args = parser.parse_args()
 

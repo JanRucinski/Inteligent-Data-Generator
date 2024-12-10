@@ -3,7 +3,12 @@
 ```
 python main.py
 ```
-there is only a need for an "input.json" file with a structure as provided (subject to some changes)
+optionally you can pass input file and output file as arguments 
+
+```
+python main.py -i input.json -o output.json
+```
+
 ## Supported settings:
 - rows_per_table
 - localization
