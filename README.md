@@ -3,7 +3,10 @@
 ```
 python main.py
 ```
-there is only a need for an "input.json" file with a structure as provided (subject to some changes)
+there is only a need for an "input.json" file with a structure as provided
+
+Additionally, you can now use the `converter.py` script to convert a `.sql` file containing database schema with `CREATE` statements into a compatible `input.json` file.
+
 ## Supported generation types as of now:
 - firstName
 - lastName
@@ -17,10 +20,6 @@ there is only a need for an "input.json" file with a structure as provided (subj
 - amount
 - by data type (integer, string, date, decimal, float, text)
 ## Functionalities yet to be added:
-- setting block
-- foreign key handling
 - more generation types
-- regex support
 - custom script support
 
-7.11 - added semi-working settings (rows_per_table, and localization), foreign keys can be taken randomly from a pool of already generated primary keys (currently those need to be specified in order for it to work)
