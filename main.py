@@ -2,11 +2,7 @@ import json
 import re
 from faker import Faker
 import random
-import time
 import json
-import re
-from faker import Faker
-import random
 import time
 import argparse
 
