@@ -207,7 +207,7 @@ def generate_sample_data_table(primary_keys, errors_in_generation, generation_me
                     # Handle unique constraints.
                 if "constraints" in column and "unique" in column["constraints"]:
                     if row[column_name] in uniques:
-                        row[column_name] = row[column_name] + "1"
+                        passed = False
                     else:
                         uniques.append(row[column_name])
 
