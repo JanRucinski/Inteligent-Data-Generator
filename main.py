@@ -159,6 +159,7 @@ def generate_sample_data_table(primary_keys, errors_in_generation, generation_me
             column_name = column["name"]
             column_type = column["type"]
             generation = column.get("generation")
+            uniques = []
 
             failsafe = 0
 
@@ -203,9 +204,12 @@ def generate_sample_data_table(primary_keys, errors_in_generation, generation_me
                         else:
                             row[column_name] = None
 
-                    # Handle unique constraints for SSN, PostalCode, etc.
+                    # Handle unique constraints.
                 if "constraints" in column and "unique" in column["constraints"]:
-                    row[column_name] = fake.unique.ssn() if column_name == "SSN" else fake.unique.zipcode()
+                    if row[column_name] in uniques:
+                        row[column_name] = row[column_name] + "1"
+                    else:
+                        uniques.append(row[column_name])
 
                     # Primary key handling
                 if "primary_key" in column:
