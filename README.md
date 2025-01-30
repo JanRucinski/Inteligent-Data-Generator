@@ -79,6 +79,7 @@ in the input JSON file. Remember to write the script in a way that the methods r
 - more generation types
 - custom script with seed support
 - more primary key generation types
+- converter to set generation types by column name (e.g. gender, firstName)
 
 ## Known issues:
 - Tables are generated one-by-one after being sorted by the number of foreign key columns. If there is a situation where table A references table B, but table B references two more tables - table B will not yet be generated at the time of generating table A, therefore there will be no foreign keys to be added to table A.
