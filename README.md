@@ -24,6 +24,7 @@ optional arguments:
 - -i --schema_file | for input JSON file 
 - -o --output_file | for output .sql file
 - -s --script | for custom generation types script file
+- -h | for help
 
 There is also an option to create an input.json file from a .sql file containing CREATE TABLE statements of the targeted database using converter.py.
 
