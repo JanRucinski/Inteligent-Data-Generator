@@ -1,9 +1,9 @@
 # Inteligent-Data-Generator
 
-Intelligent Data Generator is a tool to create dummy data used to fill a database. It uses Faker library, supports custom scripts, and is configured through the use of a JSON file.
+Intelligent Data Generator is a tool to create dummy data used to fill a database. It uses Faker library, supports custom scripts, and is configured via a JSON file.
 
 The suggested route of using the tool is:
-1. Prepare .sql file of CREATE TABLE statements for the database
+1. Prepare an .sql file of CREATE TABLE statements for the database
 2. Use converter.py with your .sql file to create a prototype of your JSON schema file
 3. Configure your JSON schema file with your desired generation types and settings
 4. Use main.py with your JSON schema file to create your output of a .sql file with generated INSERT statements.
