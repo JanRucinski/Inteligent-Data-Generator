@@ -5,6 +5,8 @@ import random
 import json
 import time
 import argparse
+import importlib.util
+import inspect
 
 fake = Faker()
 settings = {}
@@ -41,6 +43,31 @@ settings = {}
 DEFAULT_ROWS_PER_TABLE = 10
 DEFAULT_FAILSAFE_LIMIT = 100
 PRIORITIZED_COLUMNS = ["ID", "gender", "state"]
+
+    # Define a dictionary to map generation types to Faker methods
+generation_methods = {
+    "lastName": lambda: fake.last_name(),
+    "gender": lambda: random.choice(["Male", "Female", "Non-Binary"]),
+    "ssn": lambda: fake.unique.ssn(),
+    "date": lambda: fake.date(),
+    "city": lambda: fake.city(),
+    "country": lambda: fake.country(),
+    "state": lambda: fake.state(),
+    "postcode": lambda: fake.postcode(),
+    "amount": lambda: round(random.uniform(1, 1000), 2)
+}
+
+def load_methods_from_script(script_path):
+    """Dynamically loads functions from a Python script and adds them to generation_methods."""
+    print(f"Loading generation methods from {script_path}")
+    module_name = "dynamic_module"
+    spec = importlib.util.spec_from_file_location(module_name, script_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    for name, obj in inspect.getmembers(module):
+        if callable(obj):  # Only add functions
+            generation_methods[name] = obj
 
 def read_json(file_path):
     """Reads a JSON file and returns its contents."""
@@ -125,31 +152,18 @@ def generate_sample_data(json_file):
 
     sorted_tables = sort_tables_by_dependencies(json_file)
 
-    # Define a dictionary to map generation types to Faker methods
-    generation_methods = {
-        "lastName": lambda: fake.last_name(),
-        "gender": lambda: random.choice(["Male", "Female", "Non-Binary"]),
-        "ssn": lambda: fake.unique.ssn(),
-        "date": lambda: fake.date(),
-        "city": lambda: fake.city(),
-        "country": lambda: fake.country(),
-        "state": lambda: fake.state(),
-        "postcode": lambda: fake.postcode(),
-        "amount": lambda: round(random.uniform(1, 1000), 2)
-    }
-
     for table in sorted_tables:
         table_name = table["name"]
         columns = table["columns"]
         sample_rows = []
 
-        generate_sample_data_table(primary_keys, errors_in_generation, generation_methods, table_name, columns, sample_rows)
+        generate_sample_data_table(primary_keys, errors_in_generation, table_name, columns, sample_rows)
 
         data[table_name] = sample_rows
 
     return data, errors_in_generation
 
-def generate_sample_data_table(primary_keys, errors_in_generation, generation_methods, table_name, columns, sample_rows):
+def generate_sample_data_table(primary_keys, errors_in_generation, table_name, columns, sample_rows):
     for _ in range(settings.get("rows_per_table", DEFAULT_ROWS_PER_TABLE)):
         row = {}
         gender_value = None
@@ -167,7 +181,14 @@ def generate_sample_data_table(primary_keys, errors_in_generation, generation_me
                 passed = True
 
                     # Generate data based on the "generation" type, or the column type
-                if "foreign_key" in column:
+                if "primary_key" in column:
+                    row[column_name] = len(primary_keys.get(table_name, [])) + 1
+                    
+                    if table_name not in primary_keys:
+                        primary_keys[table_name] = []
+                    primary_keys[table_name].append(row[column_name])  # Store primary key
+
+                elif "foreign_key" in column:
                     referenced_table, referenced_column = column["foreign_key"].split(".")
                     if referenced_table in primary_keys and primary_keys[referenced_table]:
                         row[column_name] = random.choice(primary_keys[referenced_table])
@@ -211,12 +232,6 @@ def generate_sample_data_table(primary_keys, errors_in_generation, generation_me
                     else:
                         uniques.append(row[column_name])
 
-                    # Primary key handling
-                if "primary_key" in column:
-                    if table_name not in primary_keys:
-                        primary_keys[table_name] = []
-                    primary_keys[table_name].append(row[column_name])  # Store primary key
-
                 if row[column_name] is None:
                     print(column, generation, " was wrong")
 
@@ -259,9 +274,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate sample data from a JSON schema.")
     parser.add_argument("--schema_file", "-i" , default="input.json", help="Path to the JSON schema file")
     parser.add_argument("--output_file", "-o", default="sample_data.sql", help="Path to the output SQL file")
+    parser.add_argument("--script", "-s", help="Path to a Python script containing custom generation methods")
     args = parser.parse_args()
 
     time_start = time.time()
+
+    load_methods_from_script(args.script) if args.script else None
+
     schema = read_json(args.schema_file)
     
     if schema:

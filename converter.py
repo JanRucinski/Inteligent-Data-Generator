@@ -1,5 +1,6 @@
 import re
 import json
+import argparse
 
 def parse_sql_to_json(sql_file_path, output_file_path):
     # Open and read the .sql file
@@ -9,6 +10,7 @@ def parse_sql_to_json(sql_file_path, output_file_path):
     # Regex pattern to extract table names and their columns
     table_pattern = re.compile(r'CREATE TABLE (\w+) \((.*?)\);', re.S)
     column_pattern = re.compile(r'(\w+)\s+(\w+)(.*?),?\n')
+    foreign_key_pattern = re.compile(r'FOREIGN KEY \((\w+)\) REFERENCES (\w+)\((\w+)\)')
 
     # Match tables
     tables = table_pattern.findall(sql_content)
@@ -26,7 +28,19 @@ def parse_sql_to_json(sql_file_path, output_file_path):
 
         # Match columns
         columns = column_pattern.findall(table_content + '\n')
+        foreign_key_columns = foreign_key_pattern.findall(table_content)
+
+        # Add foreign key columns to the columns list
+        for fk_column, ref_table, ref_column in foreign_key_columns:
+            columns.append((fk_column, "INT", f"FOREIGN KEY REFERENCES {ref_table}({ref_column})"))
+
+
         for column_name, column_type, column_constraints in columns:
+            
+            # Skip the FOREIGN column (foreign key column)
+            if column_name =="FOREIGN" and column_type == "KEY":
+                continue
+
             column = {"name": column_name}
 
             # Map SQL types to JSON types
@@ -62,5 +76,10 @@ def parse_sql_to_json(sql_file_path, output_file_path):
     with open(output_file_path, 'w') as json_file:
         json.dump(json_output, json_file, indent=2)
 
-# Example usage
-parse_sql_to_json("test_schema.sql", "input.json")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Convert SQL schema to JSON input")
+    parser.add_argument("--sql_file", "-i" , help="Path to the SQL schema file", default="test_schema.sql")
+    parser.add_argument("--schema_file", "-o" , help="Path to the output JSON file", default="input.json")
+    args = parser.parse_args()
+
+    parse_sql_to_json(args.sql_file, args.schema_file)
