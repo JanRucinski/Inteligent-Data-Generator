@@ -65,13 +65,20 @@ Please note that the output JSON file will be using default generation for all t
 - by data type (integer, string, date, decimal, float, text)
 
 ### Custom generation:
-To add custom generation methods, write a python script with your logic, then pass it through -s (--script) flag like:
+To add custom generation methods, write a python script with your logic like:
+
+```python
+def car_make():
+    return random.choice(["Toyota", "Ford", "Chevrolet", "Nissan", "Honda", "Jeep", "Dodge", "Subaru", "Hyundai", "BMW"])
+```
+
+ then pass it through -s (--script) flag like:
 ```
 python main.py -s script.py
 ```
 To use your custom generation methods, simply specify 
 ```
-"generation": "yourMethodName"
+"generation": "car_make"
 ```
 in the input JSON file. Remember to write the script in a way that the methods return the value you want in your data.
 
