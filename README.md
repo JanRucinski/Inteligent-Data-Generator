@@ -1,6 +1,6 @@
 # Inteligent-Data-Generator
 
-The **Intelligent Data Generator** is a powerful tool designed to create realistic dummy data for populating databases. It leverages the **Faker** library, supports custom scripts, and is configured via a JSON file. This tool is ideal for developers and testers who need to generate large volumes of data for testing, development, or demonstration purposes.
+The **Intelligent Data Generator** is a tool designed to create dummy data for populating databases. It leverages the **Faker** library, supports custom scripts, and is configured via a JSON file. This tool is meant for developers and testers who need to generate large volumes of data for testing, development, or demonstration purposes.
 
 ## Suggested Workflow:
 1. **Prepare an SQL file** containing `CREATE TABLE` statements for your database.
